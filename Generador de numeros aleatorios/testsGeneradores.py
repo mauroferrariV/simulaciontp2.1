@@ -44,76 +44,34 @@ def testChiCuadrado(numberList, n):
     print("El generador de números aleatorios no sigue una distribución uniforme. (Los numeros no parecen ser aleatorios.)")
 
 
-def testPoker(numberList, n):
-  
-  # Verifico longitud de los digitos
-  for i in numberList:
-    if  len(str(i)) != 5:
-      return(print("Test Fallido porque de alguno de los digitos es menor que 4 o mayor que 5"))
-   
-  # INICIO DEL TEST
-  
-  # Clasifico las "manos"  
-  def clasificar_manos(numberList):
-    clasificaciones = {
-        "todos_diferentes": 0,
-        "un_par": 0,
-        "dos_pares": 0,
-        "trio": 0,
-        "full_house": 0,
-        "poker": 0,
-        "quintuples": 0
-    }
-    # Cuento las repeticiones usando la funcion Counter
-    for numero in numberList:
-        cuenta = Counter(numero)
-        valores = sorted(cuenta.values(), reverse=True)
-        
-        if valores == [5]:
-            clasificaciones["quintuples"] += 1
-        elif valores == [4, 1]:
-            clasificaciones["poker"] += 1
-        elif valores == [3, 2]:
-            clasificaciones["full_house"] += 1
-        elif valores == [3, 1, 1]:
-            clasificaciones["trio"] += 1
-        elif valores == [2, 2, 1]:
-            clasificaciones["dos_pares"] += 1
-        elif valores == [2, 1, 1, 1]:
-            clasificaciones["un_par"] += 1
-        else:
-            clasificaciones["todos_diferentes"] += 1
+def testSumasAcumuladas(numberList):
+    """
+    Test de Sumas Acumuladas para evaluar la aleatoriedad de un generador de números.
+    """
+    n = len(numberList)
     
-    return clasificaciones 
+    # Calcular la suma acumulada centrada
+    suma_acumulada = np.cumsum(numberList - np.mean(numberList))
 
-  # Genero los valores esperados de las "manos"
-  esperados = {
-    "todos_diferentes": n * 0.3024,   # Estos numeros representan las probabilidades de las manos
-    "un_par": n * 0.504,
-    "dos_pares": n * 0.108,
-    "trio": n * 0.072,
-    "full_house": n * 0.009,
-    "poker": n * 0.0045,
-    "quintuples": n * 0.0001
-  }
-  # Funcion chi-cuadrado interna del
-  def calcular_chi_cuadrado(observados, esperados):
-    chi2, p = chisquare(list(observados.values()), f_exp=list(esperados.values()))
-    return chi2, p
-  
-  # Asigno la clasificación de las "manos" 
-  observados = clasificar_manos(numberList)
-  
-  chi2, p = calcular_chi_cuadrado(observados, esperados)
-  
-  print("Chi-cuadrado:", chi2)
-  print("P-valor:", p)
-  
-  if p < 0.05:
-    print("El generador de números aleatorios no sigue una distribución uniforme. (Los numeros no parecen ser aleatorios.)")
-  else:
-    print("El generador de números aleatorios sigue una distribución uniforme. (Los numeros parecen ser aleatorios.)")
+    # Encontrar el valor máximo y mínimo de la suma acumulada
+    max_suma = np.max(suma_acumulada)
+    min_suma = np.min(suma_acumulada)
 
+    # Calcular el estadístico Vn
+    vn = max(abs(max_suma), abs(min_suma))
+
+    # Calcular el valor esperado y la desviación estándar
+    valor_esperado = math.sqrt(n) / 2
+    desviacion_estandar = math.sqrt(n) / math.sqrt(12)
+
+    # Calcular el estadístico Z
+    z = (vn - valor_esperado) / desviacion_estandar
+
+    # Evaluar el resultado del test
+    if abs(z) < 1.96:  # Nivel de significancia del 5%
+        print("El test de sumas acumuladas no rechaza la hipótesis de aleatoriedad.")
+    else:
+        print("El test de sumas acumuladas rechaza la hipótesis de aleatoriedad.")
 
 
 def testRachas(numberList, n):
