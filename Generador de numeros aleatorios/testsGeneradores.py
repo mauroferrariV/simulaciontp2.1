@@ -48,10 +48,15 @@ def testSumasAcumuladas(numberList):
     """
     Test de Sumas Acumuladas para evaluar la aleatoriedad de un generador de números.
     """
+    # Normalizar los datos al rango [0, 1]
+    numberList = np.array(numberList)
+    numberList = (numberList - np.min(numberList)) / (np.max(numberList) - np.min(numberList))
+    
     n = len(numberList)
     
     # Calcular la suma acumulada centrada
-    suma_acumulada = np.cumsum(numberList - np.mean(numberList))
+    mean_value = np.mean(numberList)
+    suma_acumulada = np.cumsum(numberList - mean_value)
 
     # Encontrar el valor máximo y mínimo de la suma acumulada
     max_suma = np.max(suma_acumulada)
@@ -66,6 +71,16 @@ def testSumasAcumuladas(numberList):
 
     # Calcular el estadístico Z
     z = (vn - valor_esperado) / desviacion_estandar
+
+    # Imprimir valores intermedios para depuración
+    print(f"Media: {mean_value}")
+    print(f"Suma acumulada: {suma_acumulada}")
+    print(f"Máximo de suma acumulada: {max_suma}")
+    print(f"Mínimo de suma acumulada: {min_suma}")
+    print(f"Vn: {vn}")
+    print(f"Valor esperado: {valor_esperado}")
+    print(f"Desviación estándar: {desviacion_estandar}")
+    print(f"Estadístico Z: {z}")
 
     # Evaluar el resultado del test
     if abs(z) < 1.96:  # Nivel de significancia del 5%
