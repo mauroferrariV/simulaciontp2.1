@@ -1,67 +1,59 @@
 import sys
-import time
-from testsGeneradores import *
 import matplotlib.pyplot as plt
+import numpy as np
+import math
+from test import *
+from utils import *
 
-if sys.argv[1]!="-s":
-  print("Uso: Python randomMidSquare.py -s <Seed (semilla)>")
-  print("Para semilla vacia, ingrese como argumento de la semilla " " (comillas dobles con 1 espacio)")
-  sys.exit(1)
+def mid_square(seed, n, digits=4):
+    """
+    Genera n números pseudoaleatorios usando el método de los cuadrados medios.
+    
+    Parámetros:
+    - seed: semilla inicial (entero).
+    - n: cantidad de números a generar.
+    - digits: cantidad de dígitos deseados en la semilla y en la salida.
 
-if sys.argv[2] == " ":
-    seed = int(time.time())
+    Retorna:
+    - Una lista de números generados.
+    """
+    results = []
+    current = seed
+
+    for _ in range(n):
+        square = str(current ** 2).zfill(2 * digits)
+        mid = len(square) // 2
+        current = int(square[mid - digits // 2 : mid + digits // 2])
+        results.append(current)
+    
+    return results
+
+if len(sys.argv) > 1:
+    if sys.argv[1] != "-n":
+        print("Uso: Python randomMidSquare.py -n <Cantidad de numeros a generar>")
+        sys.exit(1)
+    
+    if len(sys.argv) > 2 and sys.argv[2].strip():
+        cantidad_a_generar = int(sys.argv[2])
+    else:
+        cantidad_a_generar = 1000000
 else:
-  seed = int(sys.argv[2])
+    # Usar valores predeterminados si no se pasan argumentos
+    cantidad_a_generar = 1000000
+
+numeros = mid_square(seed=5731, n=cantidad_a_generar, digits=4)
+bits = numeros_a_bits(numeros, bits_por_numero=16)
+
+frecuencia = test_frecuencia_bits(bits)
+chi2_resultado = test_chi_cuadrado(numeros)
+sumas = test_sumas_acumuladas(bits)
+rachas = test_rachas(bits)
+
+# 4. Mostrar resultados
+print("Test de Frecuencia:", frecuencia)
+print("Test Chi Cuadrado:", chi2_resultado)
+print("Test Sumas Acumuladas:", sumas)
+print("Test de Rachas:", rachas)
 
 
-def mid_squares(seed):
-  seed_number = seed
-  number = seed_number
-  already_seen = set()
-  counter = 0
-
-  while number not in already_seen:
-      counter += 1
-      already_seen.add(number)
-      number = int(str(number * number).zfill(8)[2:6])  # zfill adds padding of zeroes
-      print(f"#{counter}: {number}")
-
-  print(f"Arranco con {seed_number} y"
-        f" se repitio {counter} iteraciones"
-        f" con {number} resultado final.")
-  
-  return already_seen
-
-numberList = mid_squares(seed)
-
-
-
-
-print("")
-print("--Numeros/Semillas Generados--")
-print(list(numberList))
-print("")
-print("--Test de Frecuencia de Digitos--")
-testFrecuencia(list(numberList))
-print("")
-print("--Test Chi Cuadrado--")
-testChiCuadrado(list(numberList), len(list(numberList)))
-print("")
-print("--Test Rachas--")
-testRachas(list(numberList), len(list(numberList)))
-print("")
-print("--Test Suma Acumulada--")
-testSumasAcumuladas(list(numberList))
-print("")
-
-
-listCantNums = [i for i in range(len( list(numberList)))]
-
-
-print("Tamaño de numberList:", len(list(numberList)), len(listCantNums))
-
-plt.scatter(listCantNums, list(numberList), s=10, c="black")
-plt.xlabel('Numero X Generado')
-plt.ylabel('Valor del Numero X')
-plt.title('Diagrama de Dispersión')
-plt.show()
+mostrar_mapa_de_bits(bits,"Mapa de Bits - Método de los Cuadrados Medios") 

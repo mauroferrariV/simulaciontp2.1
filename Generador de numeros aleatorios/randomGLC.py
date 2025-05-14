@@ -1,59 +1,58 @@
-import time
 import sys
-from testsGeneradores import *
 import matplotlib.pyplot as plt
+import numpy as np
+import math
+from test import *
+from utils import *
 
-if sys.argv[1]!="-s" or sys.argv[3]!="-a" or sys.argv[5]!="-c" or sys.argv[7]!="-m" or sys.argv[9]!="-n":
-  print("Uso: Python randomGLC.py -s <Seed (semilla)> -a <Parametro A> -c <Parametro C> -m <Parametro M> -n <Cantidad de Numeros>")
-  print("Para semilla vacia, ingrese como argumento de la semilla " " (comillas dobles con 1 espacio)")
-  sys.exit(1)
-
-if sys.argv[2] == " ":
-    seed = int(time.time())
+if len(sys.argv) > 1:
+    if sys.argv[1] != "-n":
+        print("Uso: Python randomGLC.py -n <Cantidad de numeros a generar>")
+        sys.exit(1)
+    
+    if len(sys.argv) > 2 and sys.argv[2].strip():
+        cantidad_a_generar = int(sys.argv[2])
+    else:
+        cantidad_a_generar = 1000
 else:
-  seed = int(sys.argv[2])
+    # Usar valores predeterminados si no se pasan argumentos
+    cantidad_a_generar = 1000
 
-a=int(sys.argv[4])
-c=int(sys.argv[6])
-m=int(eval(sys.argv[8]))
-n=int(sys.argv[10])
+def gcl(a, c, m, seed, n):
+    """
+    Genera n números usando el Generador Congruencial Lineal (GCL).
 
-def generadorGCL(a,c,m,seed,n):
-  numberList=[]
-  x0=seed
-  for i in range(n):
-    if i != 0:
-      if x0 == seed:
-        return
-    if (m>0) and (a > 0) and (a < m) and (c >= 0) and (c < m) and (seed >= 0) and (seed < m):
-      seed = (a * seed + c) % m
-      numberList.append(seed)
-  return (numberList)
+    X_{n+1} = (a * X_n + c) mod m
+    """
+    resultados = []
+    x = seed
+    for _ in range(n):
+        x = (a * x + c) % m
+        resultados.append(x)
+    return resultados
+  
+a = 1
+c = 332
+m = 162222212399
+seed = 1
 
+# a = 1664525
+# c = 1013904223
+# m = 2**32
+# seed = 1234
 
-# MAIN
-numberList=generadorGCL(a,c,m,seed,n)
-print("")
-print("--Numeros Generados--")
-print(numberList)
-print("")
-print("--Test de Frecuencia de Digitos--")
-testFrecuencia(numberList)
-print("")
-print("--Test Chi Cuadrado--")
-testChiCuadrado(numberList, n)
-print("")
-print("--Test Rachas--")
-testRachas(numberList, n)
-print("")
-print("--Test Suma Acumulada--")
-testSumasAcumuladas(numberList)
-print("")
+numeros = gcl(a, c, m, seed, cantidad_a_generar)
+bits = numeros_a_bits(numeros, bits_por_numero=1)
 
-listCantNums = [i for i in range(n)]
+frecuencia = test_frecuencia_bits(bits)
+chi2_resultado = test_chi_cuadrado(numeros)
+sumas = test_sumas_acumuladas(bits)
+rachas = test_rachas(bits)
 
-plt.scatter(listCantNums, numberList,s=10, c="black")
-plt.xlabel('Numero X Generado')
-plt.ylabel('Valor del Numero X')
-plt.title('Diagrama de Dispersión')
-plt.show()
+# 4. Mostrar resultados
+print("Test de Frecuencia:", frecuencia)
+print("Test Chi Cuadrado:", chi2_resultado)
+print("Test Sumas Acumuladas:", sumas)
+print("Test de Rachas:", rachas)
+
+mostrar_mapa_de_bits(bits,"Mapa de Bits - Método GLC") 

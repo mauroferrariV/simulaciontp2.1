@@ -1,54 +1,41 @@
 import sys
 import time
-from testsGeneradores import *
+from test import *
+from utils import *
 import matplotlib.pyplot as plt
 import random
+import math
 
-if sys.argv[1]!="-s" or sys.argv[3]!="-n":
-  print("Uso: Python randomPython.py -s <Seed (semilla)> -n <Cantidad de Numeros>")
-  print("Para semilla vacia, ingrese como argumento de la semilla " " (comillas dobles con 1 espacio)")
-  sys.exit(1)
-
-if sys.argv[2] == " ":
-    seed = int(time.time())
-else:
-  seed = int(sys.argv[2])
-
-n=int(sys.argv[4])
-
-def pyRand(seed,n):
-  numberList = []
-  x0=seed
-  random.seed(seed)
-  
-  for i in range(n):
-    numberList.append(random.randint(1,n))
+if len(sys.argv) > 1:
+    if sys.argv[1] != "-n":
+        print("Uso: Python randomPython.py -n <Cantidad de numeros a generar>")
+        sys.exit(1)
     
-  return numberList
+    if len(sys.argv) > 2 and sys.argv[2].strip():
+        cantidad_a_generar = int(sys.argv[2])
+    else:
+        cantidad_a_generar = 1000
+else:
+    # Usar valores predeterminados si no se pasan argumentos
+    cantidad_a_generar = 1000
 
-numberList=pyRand(seed,n)
-print("")
-print("--Numeros Generados--")
-print(numberList)
-print("")
-print("--Test de Frecuencia de Digitos--")
-testFrecuencia(numberList)
-print("")
-print("--Test Chi Cuadrado--")
-testChiCuadrado(numberList, n)
-print("")
-print("--Test Rachas--")
-testRachas(numberList, n)
-print("")
-print("--Test Suma Acumulada--")
-testSumasAcumuladas(numberList)
-print("")
+def generar_random_bits(n, bits_por_numero=32):
+    numeros = [int(random.random() * (2**bits_por_numero)) for _ in range(n)]
+    bits = numeros_a_bits(numeros, bits_por_numero)
+    return numeros, bits
+
+[numeros, bits] = generar_random_bits(cantidad_a_generar)
 
 
-listCantNums = [i for i in range(n)]
+frecuencia = test_frecuencia_bits(bits)
+chi2_resultado = test_chi_cuadrado(numeros)
+sumas = test_sumas_acumuladas(bits)
+rachas = test_rachas(bits)
 
-plt.scatter(listCantNums, numberList, s=10,  c="black")
-plt.xlabel('Numero X Generado')
-plt.ylabel('Valor del Numero X')
-plt.title('Diagrama de Dispersión')
-plt.show()
+# 4. Mostrar resultados
+print("Test de Frecuencia:", frecuencia)
+print("Test Chi Cuadrado:", chi2_resultado)
+print("Test Sumas Acumuladas:", sumas)
+print("Test de Rachas:", rachas)
+
+mostrar_mapa_de_bits(bits,"Mapa de Bits - Método Python") 
