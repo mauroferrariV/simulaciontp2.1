@@ -36,22 +36,15 @@ def test_sumas_acumuladas(bits):
     secuencia = np.array([1 if b == '1' else -1 for b in bits])
     suma_acumulada = np.cumsum(secuencia)
     max_desvio = np.max(np.abs(suma_acumulada))
-
-    n = len(bits)
-    esperado = np.sqrt(n) / 2
-    desviacion = np.sqrt(n) / np.sqrt(12)
-    z = (max_desvio - esperado) / desviacion
-
-    if abs(z) < 1.96:
-        resultado = 'Pasa'
-    else:
-        resultado = 'No pasa'
+    
+    # Criterio arbitrario: tolerar hasta √n como desviación razonable
+    umbral = np.sqrt(len(bits))
+    resultado = "Pasa" if max_desvio <= umbral else "No pasa"
 
     return {
-        'max_desvio': int(max_desvio),
-        'umbral': round(esperado + 1.96 * desviacion, 2),
-        'z_score': round(z, 4),
-        'resultado': resultado
+        "max_desviacion": max_desvio,
+        "umbral": umbral,
+        "resultado": resultado
     }
     
 def test_rachas(bits):
